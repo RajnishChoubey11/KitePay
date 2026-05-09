@@ -1,79 +1,54 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-export default function EmployerLoginForm() {
-    const router = useRouter();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+export default function CompanyLoginForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
+  async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
 
-        const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-        });
+    const form = new FormData(event.currentTarget);
+    const result = await signIn("credentials", {
+      email: form.get("email"),
+      password: form.get("password"),
+      redirect: false,
+    });
 
-        setLoading(false);
+    setLoading(false);
 
-        if (result?.error) {
-            setError("Invalid employer credentials");
-            return;
-        }
+    if (result?.error) {
+      setError("Use company@kitepay.demo and demo123 for the demo.");
+      return;
+    }
 
-        router.push("/dashboard/employer");
-    };
+    router.push("/dashboard/company");
+  }
 
-    return (
-        <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
-            <h1 className="mb-2 text-3xl font-bold text-white">Employer Login</h1>
-            <p className="mb-6 text-zinc-400">Sign in to manage payroll</p>
+  return (
+    <form className="auth-card" onSubmit={handleLogin}>
+      <p className="mono badge">Company login</p>
+      <h1>Run global payroll</h1>
+      <p className="muted small">Demo login: company@kitepay.demo / demo123</p>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="company@example.com"
-                    className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                />
+      <input name="email" type="email" defaultValue="company@kitepay.demo" required />
+      <input name="password" type="password" defaultValue="demo123" required />
 
-                {error && <div className="text-sm text-red-400">{error}</div>}
+      {error && <p className="form-error">{error}</p>}
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700"
-                >
-                    {loading ? "Logging in..." : "Login as Employer"}
-                </button>
-            </form>
-
-            <div className="my-6 flex items-center gap-4">
-                <div className="h-px flex-1 bg-zinc-700" />
-                <span className="text-sm text-zinc-500">OR</span>
-                <div className="h-px flex-1 bg-zinc-700" />
-            </div>
-
-            <button
-                onClick={() =>
-                    signIn("google", { callbackUrl: "/dashboard/employer" })
-                }
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 py-3 text-white hover:bg-zinc-800"
-            >
+      <button className="cta-btn full" disabled={loading} type="submit">
+        {loading ? "Signing in..." : "Open company dashboard"}
+      </button>
+      <Link className="link center small" href="/company/signup">
+        Create company account
+      </Link>
+    </form>
+  );
 }

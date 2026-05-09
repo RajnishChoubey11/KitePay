@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Link from "next/link";
 import {
   ArrowRight,
   Building2,
@@ -76,9 +77,9 @@ export default function Page() {
           </p>
 
           <div className="fade-up-delay3 hero-actions">
-            <button type="button" className="cta-btn">
+            <Link href="/company/signup" className="cta-btn">
               Get Started Free
-            </button>
+            </Link>
 
             <button type="button" className="demo-btn">
               <PlayCircle className="icon" />
@@ -244,7 +245,7 @@ export default function Page() {
               Employees wait days for payment and have no choice in how they receive compensation.
             </p>
             <p className="about-text">
-              KitePay changes that. Built by payment engineers and blockchain specialists, we've
+              KitePay changes that. Built by payment engineers and blockchain specialists, we have
               created a payroll system for the global workforce — fast, transparent, and in
               stablecoins.
             </p>
@@ -432,14 +433,7 @@ export default function Page() {
             </div>
 
             <div className="modal-body">
-              <button
-                type="button"
-                className="signin-option"
-                onClick={() => {
-                  console.log("Company sign-in clicked");
-                  setIsModalOpen(false);
-                }}
-              >
+              <Link className="signin-option" href="/company/login" onClick={() => setIsModalOpen(false)}>
                 <div className="option-icon teal-bg">
                   <Building2 className="icon-sm teal" />
                 </div>
@@ -448,16 +442,9 @@ export default function Page() {
                   <p className="muted tiny">Manage payroll</p>
                 </div>
                 <ArrowRight className="icon-xs muted" />
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                className="signin-option"
-                onClick={() => {
-                  console.log("Employee sign-in clicked");
-                  setIsModalOpen(false);
-                }}
-              >
+              <Link className="signin-option" href="/employee/login" onClick={() => setIsModalOpen(false)}>
                 <div className="option-icon purple-bg">
                   <User className="icon-sm purple" />
                 </div>
@@ -466,12 +453,12 @@ export default function Page() {
                   <p className="muted tiny">View your payments</p>
                 </div>
                 <ArrowRight className="icon-xs muted" />
-              </button>
+              </Link>
             </div>
 
             <div className="modal-footer">
               <p className="muted tiny center">
-                Don't have an account? <a href="#" className="link">Sign up free</a>
+                Don&apos;t have an account? <Link href="/company/signup" className="link">Sign up free</Link>
               </p>
             </div>
           </div>

@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap");
-
 * {
   margin: 0;
   padding: 0;
@@ -12,7 +10,7 @@ html {
 
 body {
   min-height: 100vh;
-  font-family: "Outfit", sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #0a0f1a;
   color: #ffffff;
 }
@@ -34,7 +32,7 @@ button {
 }
 
 .mono {
-  font-family: "Space Mono", monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 .app-shell {
@@ -180,6 +178,10 @@ button {
 }
 
 .cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 1rem 2rem;
   border-radius: 9999px;
   color: #fff;
@@ -626,6 +628,329 @@ button {
   border: 1px solid #374151;
   text-align: left;
   transition: all 0.2s ease;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.18), transparent 30rem),
+    #0a0f1a;
+}
+
+.auth-brand {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+.auth-card,
+.demo-card,
+.metric-card {
+  border: 1px solid rgba(55, 65, 81, 0.75);
+  background: rgba(17, 24, 39, 0.78);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.auth-card {
+  width: min(100%, 28rem);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-card h1,
+.dash-header h1 {
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+}
+
+.auth-card input,
+.demo-card select {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #374151;
+  background: #0b1220;
+  color: #fff;
+  padding: 0.9rem 1rem;
+  outline: none;
+}
+
+.auth-card input:focus,
+.demo-card select:focus {
+  border-color: #2dd4bf;
+}
+
+.form-error {
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  padding: 0.8rem 1rem;
+  font-size: 0.875rem;
+}
+
+.full {
+  width: 100%;
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+  display: grid;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(20, 184, 166, 0.13), transparent 28rem),
+    #0a0f1a;
+}
+
+.dash-sidebar {
+  border-bottom: 1px solid #1f2937;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.dash-logo {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+.dash-logo span {
+  color: #2dd4bf;
+}
+
+.dash-sidebar nav {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.dash-nav-link {
+  white-space: nowrap;
+  border: 1px solid #263244;
+  border-radius: 999px;
+  color: #cbd5e1;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+}
+
+.dash-nav-link:hover {
+  border-color: rgba(45, 212, 191, 0.6);
+  color: #fff;
+}
+
+.demo-login-box {
+  display: none;
+  border-radius: 0.75rem;
+  background: rgba(20, 184, 166, 0.08);
+  padding: 1rem;
+}
+
+.dash-main {
+  width: 100%;
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.dash-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.dash-action {
+  min-height: 3.5rem;
+}
+
+.metric-grid,
+.dash-grid,
+.settings-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  margin-bottom: 1rem;
+}
+
+.metric-card {
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.metric-card span,
+td span,
+.transaction-row span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 0.5rem;
+  color: #fff;
+  font-size: 2rem;
+}
+
+.demo-card {
+  border-radius: 1rem;
+  padding: 1.25rem;
+  min-width: 0;
+}
+
+.demo-card h2 {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 44rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid rgba(55, 65, 81, 0.7);
+  padding: 1rem;
+  text-align: left;
+  color: #e5e7eb;
+  vertical-align: middle;
+}
+
+th {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.pill.success {
+  color: #5eead4;
+  background: rgba(20, 184, 166, 0.12);
+}
+
+.pill.warn {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.transaction-row {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.74);
+}
+
+.transaction-row strong,
+.big-number {
+  color: #fff;
+}
+
+.choice-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.choice-list label {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid #263244;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  color: #e5e7eb;
+}
+
+.status-note {
+  color: #5eead4;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.big-number {
+  display: block;
+  font-size: 2rem;
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 960px) {
+  .dashboard-shell {
+    grid-template-columns: 17rem 1fr;
+  }
+
+  .dash-sidebar {
+    min-height: 100vh;
+    border-right: 1px solid #1f2937;
+    border-bottom: none;
+    align-content: start;
+    padding: 1.5rem;
+    position: sticky;
+    top: 0;
+  }
+
+  .dash-sidebar nav {
+    display: grid;
+    overflow: visible;
+  }
+
+  .dash-nav-link {
+    border-radius: 0.75rem;
+  }
+
+  .demo-login-box {
+    display: block;
+  }
+
+  .dash-main {
+    padding: 3rem;
+  }
+
+  .dash-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+
+  .demo-card.wide {
+    grid-column: span 2;
+  }
+
+  .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .transaction-row {
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+  }
 }
 
 .signin-option:hover {
