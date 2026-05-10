@@ -793,7 +793,8 @@ button {
 
 /* Wallet Selection Modal Styles */
 .wallet-adapter-modal-wrapper {
-  background-color: #111827 !important; /* Dark modal background */
+  background-color: #111827 !important;
+  /* Dark modal background */
   border: 1px solid #1f2937 !important;
   border-radius: 1.25rem !important;
 }
@@ -807,7 +808,8 @@ button {
   margin: 0 !important;
   padding: 1rem !important;
   display: grid !important;
-  gap: 0.75rem !important; /* Space between wallet options */
+  gap: 0.75rem !important;
+  /* Space between wallet options */
 }
 
 .wallet-adapter-modal-list .wallet-adapter-button {
@@ -862,7 +864,7 @@ button {
   justify-content: space-between;
   gap: 1.5rem;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+  padding-bottom: 2rem;
 }
 
 .dash-action {
@@ -1256,6 +1258,7 @@ th {
     flex-direction: row;
   }
 }
+
 .dash-sidebar {
   display: flex;
   flex-direction: column;
