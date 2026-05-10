@@ -1,10 +1,14 @@
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import EmployeeTable from "@/components/payroll/EmployeeTable";
 
-export default function EmployeesPage() {
+export default function EmployeesPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   return (
     <main className="dashboard-shell">
-      <DashboardNav mode="company" />
+      <DashboardNav mode="company" companyId={params.id} />
       <section className="dash-main">
         <div className="dash-header">
           <div>

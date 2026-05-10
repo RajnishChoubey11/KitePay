@@ -40,7 +40,7 @@ export default function EmployeeLoginForm() {
     localStorage.setItem("userType", "EMPLOYEE");
     localStorage.setItem("userData", JSON.stringify(data.employee));
 
-    router.push("/dashboard/employee");
+    router.push(`/dashboard/employee/overview/${data.employee.id}`);
   }
 
   return (

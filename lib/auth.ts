@@ -1,6 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/db";
+import { connectDB } from "@/lib/db";
+import Company from "@/models/Company";
+import Employee from "@/models/Employee";
 
 type DemoAuthUser = {
   id: string;
@@ -28,18 +30,52 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        // Handle demo users
+        if (credentials.email === "company@kitepay.demo" && credentials.password === "demo123") {
+          return {
+            id: "demo-company-id",
+            name: "KitePay Demo Company",
+            email: "company@kitepay.demo",
+            role: "COMPANY",
+          } satisfies DemoAuthUser;
+        }
 
-        if (!user || user.password !== credentials.password) return null;
+        if (credentials.email === "employee@kitepay.demo" && credentials.password === "demo123") {
+          return {
+            id: "demo-employee-id",
+            name: "Demo Employee",
+            email: "employee@kitepay.demo",
+            role: "EMPLOYEE",
+          } satisfies DemoAuthUser;
+        }
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        } satisfies DemoAuthUser;
+        await connectDB();
+
+        // Try to find user in Company collection
+        let user = await Company.findOne({ email: credentials.email });
+
+        if (user && user.password === credentials.password) {
+          return {
+            id: user._id.toString(),
+            name: user.companyName,
+            email: user.email,
+            role: "COMPANY",
+          } satisfies DemoAuthUser;
+        }
+
+        // Try to find user in Employee collection
+        user = await Employee.findOne({ email: credentials.email });
+
+        if (user && user.password === credentials.password) {
+          return {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: "EMPLOYEE",
+          } satisfies DemoAuthUser;
+        }
+
+        return null;
       },
     }),
   ],

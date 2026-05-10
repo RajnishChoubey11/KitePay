@@ -1,23 +1,35 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type DashboardNavProps = {
   mode: "company" | "employee";
+  companyId?: string;
+  employeeId?: string;
 };
 
-export default function DashboardNav({ mode }: DashboardNavProps) {
+export default function DashboardNav({
+  mode,
+  companyId,
+  employeeId,
+}: DashboardNavProps) {
+  const router = useRouter();
+
   const links =
     mode === "company"
       ? [
-          ["Overview", "/dashboard/company"],
-          ["Payroll", "/dashboard/company/payroll"],
-          ["Employees", "/dashboard/company/employees"],
-          ["Transactions", "/dashboard/company/transactions"],
+          ["Overview", `/dashboard/company/overview/${companyId ?? ""}`],
+          ["Payroll", `/dashboard/company/payroll/${companyId ?? ""}`],
+          ["Employees", `/dashboard/company/employees/${companyId ?? ""}`],
+          ["Transactions", `/dashboard/company/transactions/${companyId ?? ""}`],
+          ["Settings", `/dashboard/company/settings/${companyId ?? ""}`],
         ]
       : [
-          ["Overview", "/dashboard/employee"],
-          ["Payments", "/dashboard/employee/payments"],
-          ["Withdraw", "/dashboard/employee/withdraw"],
-          ["Settings", "/dashboard/employee/settings"],
+          ["Overview", `/dashboard/employee/overview/${employeeId ?? ""}`],
+          ["Payments", `/dashboard/employee/payments/${employeeId ?? ""}`],
+          ["Withdraw", `/dashboard/employee/withdraw/${employeeId ?? ""}`],
+          ["Settings", `/dashboard/employee/settings/${employeeId ?? ""}`],
         ];
 
   return (
@@ -25,13 +37,19 @@ export default function DashboardNav({ mode }: DashboardNavProps) {
       <Link className="dash-logo" href="/">
         Kite<span>Pay</span>
       </Link>
+
       <nav>
         {links.map(([label, href]) => (
-          <Link className="dash-nav-link" href={href} key={href}>
+          <button
+            key={href}
+            className="dash-nav-link"
+            onClick={() => router.push(href)}
+          >
             {label}
-          </Link>
+          </button>
         ))}
       </nav>
+
       <div className="demo-login-box">
         <p className="tiny mono">Demo mode</p>
         <p className="small">No real funds move. API returns simulated settlement.</p>

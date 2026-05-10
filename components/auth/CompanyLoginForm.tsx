@@ -40,7 +40,7 @@ export default function CompanyLoginForm() {
     localStorage.setItem("userType", "COMPANY");
     localStorage.setItem("userData", JSON.stringify(data.company));
 
-    router.push("/dashboard/company");
+    router.push(`/dashboard/company/overview/${data.company.id}`);
   }
 
   return (

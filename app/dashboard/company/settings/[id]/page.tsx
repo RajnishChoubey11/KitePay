@@ -1,9 +1,13 @@
 import DashboardNav from "@/components/dashboard/DashboardNav";
 
-export default function CompanySettingsPage() {
+export default function CompanySettingsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   return (
     <main className="dashboard-shell">
-      <DashboardNav mode="company" />
+      <DashboardNav mode="company" companyId={params.id} />
       <section className="dash-main">
         <div className="dash-header">
           <div>
