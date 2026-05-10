@@ -2,11 +2,6 @@ import mongoose, { Schema, models, model } from "mongoose";
 
 const EmployeeSchema = new Schema(
   {
-    companyId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
-      required: true,
-    },
 
     name: {
       type: String,
@@ -27,11 +22,6 @@ const EmployeeSchema = new Schema(
     position: {
       type: String,
       default: "",
-    },
-
-    salary: {
-      type: Number,
-      default: 0,
     },
 
     walletAddress: {

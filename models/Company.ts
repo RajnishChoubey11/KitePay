@@ -22,11 +22,6 @@ const CompanySchema = new Schema(
       type: String,
       required: true,
     },
-
-    walletAddress: {
-      type: String,
-      default: null,
-    },
   },
   {
     timestamps: true,
