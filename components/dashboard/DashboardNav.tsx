@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type DashboardNavProps = {
   mode: "company" | "employee";
@@ -15,6 +16,29 @@ export default function DashboardNav({
   employeeId,
 }: DashboardNavProps) {
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+
+    try {
+      // Call logout API
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      // Clear local storage
+      localStorage.removeItem("token");
+      localStorage.removeItem("userType");
+      localStorage.removeItem("userData");
+
+      // Redirect to home
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      setLoggingOut(false);
+    }
+  };
 
   const links =
     mode === "company"
@@ -34,26 +58,39 @@ export default function DashboardNav({
 
   return (
     <aside className="dash-sidebar">
-      <Link className="dash-logo" href="/">
-        Kite<span>Pay</span>
-      </Link>
+      <div>
+        <Link className="dash-logo" href="/">
+          Kite<span>Pay</span>
+        </Link>
 
-      <nav>
-        {links.map(([label, href]) => (
-          <button
-            key={href}
-            className="dash-nav-link"
-            onClick={() => router.push(href)}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
+        <nav className="dash-nav">
+          {links.map(([label, href]) => (
+            <button
+              key={href}
+              className="dash-nav-link"
+              onClick={() => router.push(href)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
 
-      <div className="demo-login-box">
-        <p className="tiny mono">Demo mode</p>
-        <p className="small">No real funds move. API returns simulated settlement.</p>
+        <div className="demo-login-box">
+          <p className="tiny mono">Demo mode</p>
+          <p className="small">
+            No real funds move. API returns simulated settlement.
+          </p>
+        </div>
       </div>
+
+      {/* Logout Button */}
+      <button
+        className="logout-btn"
+        onClick={handleLogout}
+        disabled={loggingOut}
+      >
+        {loggingOut ? "Logging out..." : "Logout"}
+      </button>
     </aside>
   );
 }
