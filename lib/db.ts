@@ -1,41 +1,38 @@
-type DemoUser = {
-  id: string;
-  name: string;
-  email: string;
-  password?: string;
-  role: "COMPANY" | "EMPLOYEE";
-  companyName?: string | null;
-  walletAddress?: string | null;
-};
+import mongoose from "mongoose";
 
-const users: DemoUser[] = [
-  {
-    id: "company_demo",
-    name: "KitePay Admin",
-    email: "company@kitepay.demo",
-    password: "demo123",
-    role: "COMPANY",
-    companyName: "KitePay Demo Co.",
-  },
-  {
-    id: "employee_demo",
-    name: "Priya Nair",
-    email: "employee@kitepay.demo",
-    password: "demo123",
-    role: "EMPLOYEE",
-    walletAddress: "5Nq...Sol",
-  },
-];
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
-export const prisma = {
-  user: {
-    findUnique: async ({ where }: { where: { email?: string } }) => {
-      return users.find((user) => user.email === where.email) ?? null;
-    },
-    create: async ({ data }: { data: Omit<DemoUser, "id"> }) => {
-      const user = { ...data, id: `demo_${Date.now()}` };
-      users.push(user);
-      return user;
-    },
-  },
-};
+if (!MONGODB_URI) {
+  throw new Error("Please define MONGODB_URI in .env.local");
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseConnection: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+}
+
+let cached = global.mongooseConnection;
+
+if (!cached) {
+  cached = global.mongooseConnection = {
+    conn: null,
+    promise: null,
+  };
+}
+
+export async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI);
+  }
+
+  cached.conn = await cached.promise;
+
+  return cached.conn;
+}
