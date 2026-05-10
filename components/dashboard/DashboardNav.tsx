@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 type DashboardNavProps = {
   mode: "company" | "employee";
@@ -22,17 +24,14 @@ export default function DashboardNav({
     setLoggingOut(true);
 
     try {
-      // Call logout API
       await fetch("/api/auth/logout", {
         method: "POST",
       });
 
-      // Clear local storage
       localStorage.removeItem("token");
       localStorage.removeItem("userType");
       localStorage.removeItem("userData");
 
-      // Redirect to home
       router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
@@ -56,6 +55,13 @@ export default function DashboardNav({
           ["Settings", `/dashboard/employee/settings/${employeeId ?? ""}`],
         ];
 
+  const pathname = usePathname();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <aside className="dash-sidebar">
       <div>
@@ -64,26 +70,28 @@ export default function DashboardNav({
         </Link>
 
         <nav className="dash-nav">
-          {links.map(([label, href]) => (
-            <button
-              key={href}
-              className="dash-nav-link"
-              onClick={() => router.push(href)}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
+          {links.map(([label, href]) => {
+            const isActive = pathname === href;
+            return (
+              <button
+                key={href}
+                className={`dash-nav-link ${isActive ? "active" : ""}`}
+                onClick={() => router.push(href)}
+              >
+                {label}
+              </button>
+            );
+          })}
 
-        <div className="demo-login-box">
-          <p className="tiny mono">Demo mode</p>
-          <p className="small">
-            No real funds move. API returns simulated settlement.
-          </p>
-        </div>
+          {/* Show wallet button only for company dashboard */}
+          {mode === "company" && mounted && (
+            <div className="wallet-button-container">
+              <WalletMultiButton className="wallet-button" />
+            </div>
+          )}
+        </nav>
       </div>
 
-      {/* Logout Button */}
       <button
         className="logout-btn"
         onClick={handleLogout}
