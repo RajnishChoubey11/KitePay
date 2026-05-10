@@ -1,11 +1,15 @@
+"use client";
+
+import { use } from "react";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import EmployeeTable from "@/components/payroll/EmployeeTable";
 
 export default function EmployeesPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const params = use(paramsPromise);
   return (
     <main className="dashboard-shell">
       <DashboardNav mode="company" companyId={params.id} />

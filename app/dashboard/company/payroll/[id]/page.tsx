@@ -1,13 +1,17 @@
+"use client";
+
+import { use } from "react";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import PayrollButton from "@/components/payroll/PayrollButton";
 import EmployeeTable from "@/components/payroll/EmployeeTable";
 import { formatUsd, getPayrollTotal } from "@/lib/demoData";
 
 export default function PayrollPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const params = use(paramsPromise);
   const total = getPayrollTotal();
 
   return (
