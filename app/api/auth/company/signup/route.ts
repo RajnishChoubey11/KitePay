@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     await connectDB();
 
     const body = await req.json();
-    const { companyName, ownerName, email, password, walletAddress } = body;
+    const { companyName, ownerName, email, password } = body;
 
     if (!companyName || !ownerName || !email || !password) {
       return NextResponse.json(
@@ -33,7 +33,6 @@ export async function POST(req: Request) {
       ownerName,
       email,
       password: hashedPassword,
-      walletAddress: walletAddress || null,
     });
 
     const token = jwt.sign(
@@ -49,12 +48,12 @@ export async function POST(req: Request) {
     const res = NextResponse.json(
       {
         message: "Company signup successful",
+        token,
         company: {
           id: company._id,
           companyName: company.companyName,
           ownerName: company.ownerName,
           email: company.email,
-          walletAddress: company.walletAddress,
         },
       },
       { status: 201 }

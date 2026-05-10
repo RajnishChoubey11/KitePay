@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { connectDB } from "@/lib/db";
 import Employee from "@/models/Employee";
-import Company from "@/models/Company";
 
 export async function POST(req: Request) {
   try {
@@ -11,29 +10,13 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const {
-      companyId,
       name,
       email,
       password,
       position,
-      salary,
       walletAddress,
     } = body;
 
-    if (!companyId || !name || !email || !password) {
-      return NextResponse.json(
-        { message: "All required fields are missing" },
-        { status: 400 }
-      );
-    }
-
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return NextResponse.json(
-        { message: "Company not found" },
-        { status: 404 }
-      );
-    }
 
     const existingEmployee = await Employee.findOne({ email });
     if (existingEmployee) {
@@ -46,12 +29,10 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const employee = await Employee.create({
-      companyId,
       name,
       email,
       password: hashedPassword,
       position: position || "",
-      salary: salary || 0,
       walletAddress: walletAddress || null,
     });
 
@@ -68,13 +49,12 @@ export async function POST(req: Request) {
     const res = NextResponse.json(
       {
         message: "Employee signup successful",
+        token,
         employee: {
           id: employee._id,
-          companyId: employee.companyId,
           name: employee.name,
           email: employee.email,
           position: employee.position,
-          salary: employee.salary,
           walletAddress: employee.walletAddress,
         },
       },

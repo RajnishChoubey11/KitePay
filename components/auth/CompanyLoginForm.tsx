@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function CompanyLoginForm() {
@@ -16,18 +15,30 @@ export default function CompanyLoginForm() {
     setError("");
 
     const form = new FormData(event.currentTarget);
-    const result = await signIn("credentials", {
-      email: form.get("email"),
-      password: form.get("password"),
-      redirect: false,
+    const email = String(form.get("email"));
+    const password = String(form.get("password"));
+
+    const response = await fetch("/api/auth/company/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
     });
 
-    setLoading(false);
+    const data = await response.json();
 
-    if (result?.error) {
-      setError("Use company@kitepay.demo and demo123 for the demo.");
+    if (!response.ok) {
+      setError(data.message || "Login failed");
+      setLoading(false);
       return;
     }
+
+    // Store token in localStorage
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("userType", "COMPANY");
+    localStorage.setItem("userData", JSON.stringify(data.company));
 
     router.push("/dashboard/company");
   }
@@ -38,8 +49,8 @@ export default function CompanyLoginForm() {
       <h1>Run global payroll</h1>
       <p className="muted small">Demo login: company@kitepay.demo / demo123</p>
 
-      <input name="email" type="email" defaultValue="company@kitepay.demo" required />
-      <input name="password" type="password" defaultValue="demo123" required />
+      <input name="email" type="email" placeholder="company@kitepay.demo" required />
+      <input name="password" type="password" placeholder="demo123" required />
 
       {error && <p className="form-error">{error}</p>}
 

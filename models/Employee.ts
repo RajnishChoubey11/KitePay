@@ -2,7 +2,6 @@ import mongoose, { Schema, models, model } from "mongoose";
 
 const EmployeeSchema = new Schema(
   {
-
     name: {
       type: String,
       required: true,

@@ -46,12 +46,12 @@ export async function POST(req: Request) {
 
     const res = NextResponse.json({
       message: "Company login successful",
+      token,
       company: {
         id: company._id,
         companyName: company.companyName,
         ownerName: company.ownerName,
         email: company.email,
-        walletAddress: company.walletAddress,
       },
     });
 

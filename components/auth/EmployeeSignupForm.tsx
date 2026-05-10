@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function EmployeeSignupForm() {
@@ -16,29 +15,37 @@ export default function EmployeeSignupForm() {
     setError("");
 
     const form = new FormData(event.currentTarget);
+    const name = String(form.get("name"));
     const email = String(form.get("email"));
     const password = String(form.get("password"));
+    const position = String(form.get("position") || "");
+    const walletAddress = String(form.get("walletAddress") || "");
 
-    const response = await fetch("/api/auth/signup", {
+    const response = await fetch("/api/auth/employee/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: form.get("name"),
+        name,
         email,
         password,
-        walletAddress: form.get("walletAddress"),
-        role: "EMPLOYEE",
+        position,
+        walletAddress: walletAddress || undefined,
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const data = await response.json().catch(() => null);
-      setError(data?.error ?? "Signup failed");
+      setError(data.message || "Signup failed");
       setLoading(false);
       return;
     }
 
-    await signIn("credentials", { email, password, redirect: false });
+    // Store token in localStorage
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("userType", "EMPLOYEE");
+    localStorage.setItem("userData", JSON.stringify(data.employee));
+
     router.push("/dashboard/employee");
   }
 
@@ -51,7 +58,8 @@ export default function EmployeeSignupForm() {
       <input name="name" placeholder="Full name" required />
       <input name="email" type="email" placeholder="employee@kitepay.demo" required />
       <input name="password" type="password" placeholder="Password" required />
-      <input name="walletAddress" placeholder="Wallet address optional" />
+      <input name="position" placeholder="Position" required />
+      <input name="walletAddress" placeholder="Wallet address" required />
 
       {error && <p className="form-error">{error}</p>}
 
