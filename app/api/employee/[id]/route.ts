@@ -57,13 +57,18 @@ export async function GET(
         emp.employeeId.toString() === employee._id.toString()
     );
 
-    const salary = matchedEmployee?.salaryUsd || 0;
-    const totalReceived = employee.transactions.reduce(
-      (sum: number, tx: { status: string; amount: number }) =>
-        sum + (tx.status === "Completed" ? tx.amount : 0),
+    const salary = (employee.transactions as Array<{ status: string; amount: number }>).reduce(
+      (sum, tx) =>
+        sum + (tx.status === "Completed" || tx.status === "Available in KitePay wallet" ? tx.amount : 0),
       0
     );
-    const available = Math.max(salary - totalReceived, 0);
+
+    const withdrawn = (employee.transactions as Array<{ status: string; amount: number }>).reduce(
+      (sum, tx) => sum + (tx.status === "Withdrawn" ? tx.amount : 0),
+      0
+    );
+
+    const available = Math.max(salary - withdrawn, 0);
 
     return NextResponse.json({
       employee: {

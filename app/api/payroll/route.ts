@@ -23,6 +23,7 @@ type CompanyTransactionEntry = {
   employeeName: string;
   amount: number;
   status: string;
+  token?: string;
   time: string;
 };
 
@@ -73,7 +74,7 @@ export async function GET(req: Request) {
       amount: tx.amount,
       status: tx.status,
       time: tx.time,
-      token: "USDC",
+      token: tx.token || "USDC",
     }));
 
     return NextResponse.json({ employees, totalUsd, transactions });
@@ -102,6 +103,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    const walletPublicKey = String(body.walletPublicKey || "").trim();
+
+    if (!walletPublicKey) {
+      return NextResponse.json(
+        { message: "Solana wallet must be connected before running payroll" },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
     const company = await Company.findById(payload.id);
@@ -116,7 +127,15 @@ export async function POST(req: Request) {
       );
     }
 
+    const treasuryWallet = "DTqCbfDUjY7H5V3qyF7DcnvmrzymyKombTNwNjvYV17a";
     const timestamp = formatTimestamp();
+    const totalUsd = company.employees.reduce(
+      (sum: number, emp: CompanyEmployeeEntry) => sum + (emp.salaryUsd || 0),
+      0
+    );
+    const fee = parseFloat((totalUsd * 0.005).toFixed(6));
+    const netMultiplier = 1 - 0.005;
+
     const payrollTransactions: Array<{
       id: string;
       employeeName: string;
@@ -127,12 +146,14 @@ export async function POST(req: Request) {
     }> = [];
 
     for (const employeeEntry of company.employees as CompanyEmployeeEntry[]) {
+      const netAmount = parseFloat((employeeEntry.salaryUsd * netMultiplier).toFixed(6));
       const transaction = {
         employeeId: employeeEntry.employeeId,
         employeeName: employeeEntry.employeeName,
         email: employeeEntry.email,
-        amount: employeeEntry.salaryUsd,
+        amount: netAmount,
         status: "Completed",
+        token: "USDC",
         time: timestamp,
       };
 
@@ -143,7 +164,7 @@ export async function POST(req: Request) {
         amount: transaction.amount,
         status: transaction.status,
         time: transaction.time,
-        token: "USDC",
+        token: transaction.token,
       });
 
       const employee = await Employee.findById(employeeEntry.employeeId);
@@ -151,8 +172,9 @@ export async function POST(req: Request) {
         employee.transactions.push({
           companyId: company._id,
           companyName: company.companyName,
-          amount: employeeEntry.salaryUsd,
+          amount: netAmount,
           status: "Completed",
+          token: "USDC",
           time: timestamp,
         });
         await employee.save();
@@ -161,15 +183,13 @@ export async function POST(req: Request) {
 
     await company.save();
 
-    const totalUsd = company.employees.reduce(
-      (sum: number, emp: CompanyEmployeeEntry) => sum + (emp.salaryUsd || 0),
-      0
-    );
-
     return NextResponse.json({
       status: "success",
-      message: "Payroll run completed",
+      message: "Payroll run completed and funds deposited to KitePay treasury wallet.",
       totalUsd,
+      fee,
+      treasuryWallet,
+      walletPublicKey,
       transactions: payrollTransactions,
     });
   } catch (error: unknown) {

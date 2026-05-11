@@ -127,7 +127,7 @@ export default function CompanyDashboardPage({
               Welcome, {company?.companyName || "Company"}! Fund payroll in USDC and track payouts directly from the database.
             </p>
           </div>
-          <PayrollButton total={total} />
+          <PayrollButton total={total} companyId={params.id} />
         </div>
 
         <div className="metric-grid">

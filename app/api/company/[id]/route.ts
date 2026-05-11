@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { connectDB } from "@/lib/db";
 import Company from "@/models/Company";
+import Employee from "@/models/Employee";
 
 type JwtPayload = {
   id: string;
@@ -23,6 +24,7 @@ type CompanyTransactionEntry = {
   employeeName: string;
   amount: number;
   status: string;
+  token?: string;
   time: string;
 };
 
@@ -60,6 +62,14 @@ export async function GET(
       );
     }
 
+    const employeeDocs = await Employee.find({
+      _id: { $in: (company.employees as CompanyEmployeeEntry[]).map((emp) => emp.employeeId) },
+    });
+
+    const walletByEmployeeId = new Map(
+      employeeDocs.map((emp) => [emp._id.toString(), emp.walletAddress])
+    );
+
     const employees = (company.employees as CompanyEmployeeEntry[]).map((emp) => ({
       employeeId: emp.employeeId.toString(),
       employeeName: emp.employeeName,
@@ -67,6 +77,7 @@ export async function GET(
       position: emp.position || "",
       country: emp.country,
       salaryUsd: emp.salaryUsd,
+      walletAddress: walletByEmployeeId.get(emp.employeeId.toString()) || null,
     }));
 
     const transactions = (company.transactions as CompanyTransactionEntry[]).map((tx) => ({
@@ -76,7 +87,7 @@ export async function GET(
       amount: tx.amount,
       status: tx.status,
       time: tx.time,
-      token: "USDC",
+      token: (tx as any).token || "USDC",
     }));
 
     return NextResponse.json({

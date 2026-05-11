@@ -48,7 +48,7 @@ export default function PayrollPage({
               Batch total: {formatUsd(total)} for {employeeCount} employees.
             </p>
           </div>
-          <PayrollButton total={total} />
+          <PayrollButton total={total} companyId={params.id} />
         </div>
         <div className="demo-card">
           <h2>Payout queue</h2>

@@ -20,6 +20,7 @@ const CompanySchema = new Schema(
       email: { type: String, required: true },
       amount: { type: Number, required: true },
       status: { type: String, required: true },
+      token: { type: String, default: "USDC" },
       time: { type: String, required: true },
     }]
   },
