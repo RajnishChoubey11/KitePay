@@ -30,7 +30,7 @@ export default function WithdrawModal() {
         </select>
 
         <button className="cta-btn full" onClick={withdraw} type="button">
-          Request demo payout
+          Request Payout
         </button>
       </div>
 

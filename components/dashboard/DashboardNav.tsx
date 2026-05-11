@@ -50,8 +50,7 @@ export default function DashboardNav({
       ]
       : [
         ["Overview", `/dashboard/employee/overview/${employeeId ?? ""}`],
-        ["Payments", `/dashboard/employee/payments/${employeeId ?? ""}`],
-        ["Withdraw", `/dashboard/employee/withdraw/${employeeId ?? ""}`],
+        ["Transactions", `/dashboard/employee/transactions/${employeeId ?? ""}`],
         ["Settings", `/dashboard/employee/settings/${employeeId ?? ""}`],
       ];
 

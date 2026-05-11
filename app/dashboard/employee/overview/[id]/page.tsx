@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import DashboardNav from "@/components/dashboard/DashboardNav";
+import WithdrawModal from "@/components/withdraw/WithdrawModal";
 import { currencyRates, formatUsd } from "@/lib/demoData";
 
 type Employee = {
@@ -89,19 +90,7 @@ export default function EmployeeDashboardPage() {
         </div>
 
         <div className="dash-grid">
-          <div className="demo-card">
-            <h2>Current payout choice</h2>
-            <div className="choice-list">
-              <label>
-                <input defaultChecked name="payout" type="radio" />
-                Local currency to HDFC Bank
-              </label>
-              <label>
-                <input name="payout" type="radio" />
-                Keep USDC in wallet
-              </label>
-            </div>
-          </div>
+          <WithdrawModal />
         </div>
       </section>
     </main>
