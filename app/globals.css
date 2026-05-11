@@ -713,6 +713,9 @@ button {
 }
 
 .dash-logo {
+  display: flex;
+  align-items: center;
+  cursor: default;
   color: #fff;
   font-weight: 800;
   font-size: 1.4rem;

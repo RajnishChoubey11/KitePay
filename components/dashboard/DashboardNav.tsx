@@ -42,18 +42,18 @@ export default function DashboardNav({
   const links =
     mode === "company"
       ? [
-          ["Overview", `/dashboard/company/overview/${companyId ?? ""}`],
-          ["Payroll", `/dashboard/company/payroll/${companyId ?? ""}`],
-          ["Employees", `/dashboard/company/employees/${companyId ?? ""}`],
-          ["Transactions", `/dashboard/company/transactions/${companyId ?? ""}`],
-          ["Settings", `/dashboard/company/settings/${companyId ?? ""}`],
-        ]
+        ["Overview", `/dashboard/company/overview/${companyId ?? ""}`],
+        ["Payroll", `/dashboard/company/payroll/${companyId ?? ""}`],
+        ["Employees", `/dashboard/company/employees/${companyId ?? ""}`],
+        ["Transactions", `/dashboard/company/transactions/${companyId ?? ""}`],
+        ["Settings", `/dashboard/company/settings/${companyId ?? ""}`],
+      ]
       : [
-          ["Overview", `/dashboard/employee/overview/${employeeId ?? ""}`],
-          ["Payments", `/dashboard/employee/payments/${employeeId ?? ""}`],
-          ["Withdraw", `/dashboard/employee/withdraw/${employeeId ?? ""}`],
-          ["Settings", `/dashboard/employee/settings/${employeeId ?? ""}`],
-        ];
+        ["Overview", `/dashboard/employee/overview/${employeeId ?? ""}`],
+        ["Payments", `/dashboard/employee/payments/${employeeId ?? ""}`],
+        ["Withdraw", `/dashboard/employee/withdraw/${employeeId ?? ""}`],
+        ["Settings", `/dashboard/employee/settings/${employeeId ?? ""}`],
+      ];
 
   const pathname = usePathname();
 
@@ -65,9 +65,16 @@ export default function DashboardNav({
   return (
     <aside className="dash-sidebar">
       <div>
-        <Link className="dash-logo" href="/">
+        <div className="dash-logo">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <path d="M50 8 L80 45 L50 82 L20 45 Z" className="kite-fill-1" />
+            <path d="M50 8 L80 45 L50 45 Z" className="kite-fill-2" />
+            <path d="M50 45 L80 45 L50 82 Z" className="kite-fill-3" />
+            <path d="M50 82 L47 95 Q50 88 53 95 Z" className="kite-tail" />
+            <circle cx="50" cy="42" r="4" className="kite-dot" />
+          </svg>
           Kite<span>Pay</span>
-        </Link>
+        </div>
 
         <nav className="dash-nav">
           {links.map(([label, href]) => {
