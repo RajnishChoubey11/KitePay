@@ -10,8 +10,10 @@ import {
 
 export const SOLANA_DEVNET_URL = clusterApiUrl("devnet");
 export const KITEPAY_TREASURY_PUBLIC_KEY = new PublicKey(
-  "DTqCbfDUjY7H5V3qyF7DcnvmrzymyKombTNwNjvYV17a"
+  process.env.NEXT_PUBLIC_KITEPAY_TREASURY_PUBLIC_KEY || "3XTXnX8XyyiKAjC1dgtLXPExihjqPVVmfcfPQPYQ4AZE"
 );
+
+
 export const USDC_DEVNET_MINTS = [
   "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", // Circle Official (Confirmed from wallet)
   "4zMMC9srtvS2wSRy37Ho2QHUiEz6f77dR8Z3N8QzK4xP", // Alternative Circle
@@ -62,10 +64,11 @@ export async function getOrCreateAssociatedTokenAccount(
   return { tokenAccount, instructions };
 }
 
-async function findUsdcSourceTokenAccount(
+export async function findUsdcSourceTokenAccount(
   connection: Connection,
   owner: PublicKey
 ): Promise<PublicKey | null> {
+
   const associatedTokenAccount = await getAssociatedTokenAddress(
     USDC_DEVNET_MINT,
     owner,
@@ -137,17 +140,16 @@ export async function transferUsdcPayrollBatch(
 
   if (Number(sourceBalance.value.amount) < totalAmountBaseUnits) {
     throw new Error(
-      `Insufficient USDC balance. Required ${totalAmountUsd.toFixed(6)} USDC, but source has ${Number(sourceBalance.value.amount) / 10 ** USDC_DECIMALS
+      `Insufficient USDC balance. Required ${totalAmountUsd.toFixed(6)} USDC, but source has ${
+        Number(sourceBalance.value.amount) / 10 ** USDC_DECIMALS
       } USDC.`
     );
   }
 
   const solBalance = await connection.getBalance(walletPublicKey);
-  const mustCoverAtaCreation = 1 + employeePayments.length; // treasury + each employee if needed
-  const minimumSol = 1000000 * Math.min(2, mustCoverAtaCreation);
-  if (solBalance < minimumSol) {
+  if (solBalance < 500000) {
     throw new Error(
-      "Not enough SOL to pay transaction fees and create token accounts on Devnet. Fund your wallet with Devnet SOL and retry."
+      "Not enough SOL to pay transaction fees. Fund your wallet with Devnet SOL and retry."
     );
   }
 
@@ -159,52 +161,19 @@ export async function transferUsdcPayrollBatch(
   );
   instructions.push(...treasuryDestination.instructions);
 
-  const treasuryAmount = Math.round(treasuryAmountUsd * 10 ** USDC_DECIMALS);
-  if (treasuryAmount > 0) {
-    instructions.push(
-      createTransferCheckedInstruction(
-        sourceTokenAccount,
-        USDC_DEVNET_MINT,
-        treasuryDestination.tokenAccount,
-        walletPublicKey,
-        treasuryAmount,
-        USDC_DECIMALS
-      )
-    );
-  }
-
-  for (const payment of employeePayments) {
-    if (!payment.walletAddress) {
-      throw new Error("Employee wallet address missing.");
-    }
-
-    const employeeWalletKey = new PublicKey(payment.walletAddress);
-    const destination = await getOrCreateAssociatedTokenAccount(
-      connection,
+  instructions.push(
+    createTransferCheckedInstruction(
+      sourceTokenAccount,
+      USDC_DEVNET_MINT,
+      treasuryDestination.tokenAccount,
       walletPublicKey,
-      employeeWalletKey,
-      USDC_DEVNET_MINT
-    );
-    instructions.push(...destination.instructions);
-
-    const amount = Math.round(payment.amountUsd * 10 ** USDC_DECIMALS);
-    if (amount <= 0) {
-      throw new Error("Each employee payment must be greater than zero.");
-    }
-
-    instructions.push(
-      createTransferCheckedInstruction(
-        sourceTokenAccount,
-        USDC_DEVNET_MINT,
-        destination.tokenAccount,
-        walletPublicKey,
-        amount,
-        USDC_DECIMALS
-      )
-    );
-  }
+      totalAmountBaseUnits,
+      USDC_DECIMALS
+    )
+  );
 
   const transaction = new Transaction().add(...instructions);
+
   transaction.feePayer = walletPublicKey;
   transaction.recentBlockhash = (await connection.getLatestBlockhash("confirmed")).blockhash;
 

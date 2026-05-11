@@ -170,10 +170,11 @@ export async function POST(req: Request) {
         amount: netAmount,
         grossAmount: grossAmount,
         fee: employeeFee,
-        status: "Completed",
+        status: "Available",
         token: "USDC",
         time: timestamp,
       };
+
 
 
       company.transactions.push(transaction);
@@ -197,10 +198,11 @@ export async function POST(req: Request) {
           amount: netAmount,
           grossAmount: grossAmount,
           fee: employeeFee,
-          status: "Completed",
+          status: "Available",
           token: "USDC",
           time: timestamp,
         });
+
 
         await employee.save();
       }

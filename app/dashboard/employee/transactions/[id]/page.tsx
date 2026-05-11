@@ -15,7 +15,6 @@ type EmployeeTransaction = {
   time: string;
 };
 
-
 type EmployeeApiTransaction = {
   _id?: { toString: () => string };
   id?: string;
@@ -27,7 +26,6 @@ type EmployeeApiTransaction = {
   time: string;
 };
 
-
 export default function EmployeePaymentsPage() {
   const params = useParams<{ id: string }>();
   const employeeId = params.id;
@@ -36,45 +34,43 @@ export default function EmployeePaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<EmployeeTransaction[]>([]);
 
-  useEffect(() => {
+  const fetchData = async () => {
     if (!employeeId) return;
+    try {
+      const token = localStorage.getItem("token");
 
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
+      const response = await fetch(`/api/employee/${employeeId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token ?? ""}`,
+        },
+      });
 
-        const response = await fetch(`/api/employee/${employeeId}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token ?? ""}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch employee data");
-        }
-
-        const data = await response.json();
-        setSalary(data.salary ?? 0);
-        setTransactions(
-          (data.employee.transactions || []).map((tx: EmployeeApiTransaction) => ({
-            id: tx._id?.toString() ?? tx.id ?? `${tx.companyName}-${tx.time}`,
-            companyName: tx.companyName,
-            amount: tx.amount,
-            grossAmount: tx.grossAmount || tx.amount,
-            fee: tx.fee || 0,
-            status: tx.status,
-            time: tx.time,
-          }))
-
-        );
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch employee data");
       }
-    };
 
+      const data = await response.json();
+      setSalary(data.salary ?? 0);
+      setTransactions(
+        (data.employee.transactions || []).map((tx: EmployeeApiTransaction) => ({
+          id: tx._id?.toString() ?? tx.id ?? `${tx.companyName}-${tx.time}`,
+          companyName: tx.companyName,
+          amount: tx.amount,
+          grossAmount: tx.grossAmount || tx.amount,
+          fee: tx.fee || 0,
+          status: tx.status,
+          time: tx.time,
+        }))
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [employeeId]);
 
@@ -88,10 +84,7 @@ export default function EmployeePaymentsPage() {
     );
   }
 
-  const totalReceived = transactions
-    .filter((t) => t.status === "Completed")
-    .reduce((sum, t) => sum + t.amount, 0);
-
+  const totalReceived = transactions.reduce((sum, t) => sum + t.amount, 0);
   const lastPayment = transactions[0]?.amount || 0;
 
   return (
@@ -119,20 +112,14 @@ export default function EmployeePaymentsPage() {
             <span>Last Payout</span>
             <strong>{formatUsd(lastPayment)}</strong>
           </div>
-
-          <div className="metric-card">
-            <span>Next Payout (Estimated)</span>
-            <strong>{formatUsd(salary)}</strong>
-            <span className="tiny teal">Scheduled for June 1st</span>
-          </div>
         </div>
 
         <div className="dash-grid">
           <div className="demo-card wide">
             <h2>Transaction History</h2>
-            <div className="table-wrap">
+            <div className="table-wrap" style={{ maxHeight: '400px', overflowY: 'auto' }}>
               <table>
-                <thead>
+                <thead style={{ position: 'sticky', top: 0, background: 'var(--card-bg)', zIndex: 1 }}>
                   <tr>
                     <th>Date & Time</th>
                     <th>Company Name</th>
@@ -140,11 +127,10 @@ export default function EmployeePaymentsPage() {
                     <th>Fee (0.5%)</th>
                     <th>Net Received</th>
                     <th>Status</th>
-
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.map((tx) => (
+                  {[...transactions].reverse().map((tx) => (
                     <tr key={tx.id}>
                       <td>
                         <div className="semibold">{tx.time}</div>
@@ -157,11 +143,10 @@ export default function EmployeePaymentsPage() {
                         <strong className="teal">{formatUsd(tx.amount)}</strong>
                       </td>
                       <td>
-                        <span className={`pill ${tx.status === "Completed" ? "success" : "warn"}`}>
-                          {tx.status}
+                        <span className={`pill ${(tx.status === "Available" || tx.status === "Available in KitePay wallet") ? "warn" : "success"}`}>
+                          {(tx.status === "Available" || tx.status === "Available in KitePay wallet") ? "Available" : tx.status}
                         </span>
                       </td>
-
                     </tr>
                   ))}
                 </tbody>

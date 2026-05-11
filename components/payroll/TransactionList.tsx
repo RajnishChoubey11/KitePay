@@ -18,7 +18,7 @@ export default function TransactionList({ transactions = [] }: { transactions?: 
   }
 
   return (
-    <div className="stack">
+    <div className="stack" style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
       {transactions.map((transaction) => (
         <div className="transaction-row" key={transaction.id}>
           <div style={{ flex: 1 }}>
@@ -28,23 +28,23 @@ export default function TransactionList({ transactions = [] }: { transactions?: 
             </span>
           </div>
           
-          <div style={{ textAlign: "right", marginRight: "1rem" }}>
+          <div style={{ textAlign: "right", minWidth: "100px" }}>
             <strong style={{ display: "block" }}>{formatUsd(transaction.grossAmount || transaction.amount)}</strong>
             <span className="tiny muted">Gross Sent</span>
           </div>
-
-          <div style={{ textAlign: "right", marginRight: "1rem" }}>
+ 
+          <div style={{ textAlign: "right", minWidth: "100px" }}>
             <strong style={{ display: "block", color: "#fca5a5" }}>-{formatUsd(transaction.fee || 0)}</strong>
             <span className="tiny muted">Fees (0.5%)</span>
           </div>
-
-          <div style={{ textAlign: "right", marginRight: "1rem" }}>
+ 
+          <div style={{ textAlign: "right", minWidth: "100px" }}>
             <strong style={{ display: "block", color: "#2dd4bf" }}>{formatUsd(transaction.amount)}</strong>
             <span className="tiny muted">Received</span>
           </div>
 
-          <span className={transaction.status === "Completed" ? "pill success" : "pill warn"}>
-            {transaction.status}
+          <span className={(transaction.status === "Completed" || transaction.status === "Withdrawn") ? "pill success" : "pill warn"}>
+            {transaction.status === "Available in KitePay wallet" ? "Available" : transaction.status}
           </span>
         </div>
       ))}

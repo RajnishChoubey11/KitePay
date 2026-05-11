@@ -19,40 +19,45 @@ export default function EmployeeDashboardPage() {
   const [available, setAvailable] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchData = async () => {
     if (!employeeId) return;
+    try {
+      const token = localStorage.getItem("token");
 
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
+      const response = await fetch(`/api/employee/${employeeId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token ?? ""}`,
+        },
+      });
 
-        const response = await fetch(`/api/employee/${employeeId}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token ?? ""}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch employee data");
-        }
-
-        const data = await response.json();
-        setEmployee(data.employee);
-        setSalary(data.salary ?? 0);
-        setAvailable(data.available ?? 0);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch employee data");
       }
-    };
 
+      const data = await response.json();
+      setEmployee(data.employee);
+      setSalary(data.salary ?? 0);
+      setAvailable(data.available ?? 0);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [employeeId]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="dashboard-shell">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <p className="mono badge">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -90,8 +95,9 @@ export default function EmployeeDashboardPage() {
         </div>
 
         <div className="dash-grid">
-          <WithdrawModal />
+          <WithdrawModal availableAmount={available} onSuccess={fetchData} />
         </div>
+
       </section>
     </main>
   );
