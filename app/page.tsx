@@ -72,7 +72,7 @@ export default function Page() {
           </h1>
 
           <p className="fade-up-delay2 hero-subtitle">
-            Companies send payroll in USDC or USDT. Employees choose — keep crypto or cash out to
+            Companies send payroll in USDC. Employees choose — keep crypto or cash out to
             their bank at the best market rate.
           </p>
 
@@ -85,17 +85,6 @@ export default function Page() {
               <PlayCircle className="icon" />
               <span>Watch Demo</span>
             </button>
-          </div>
-
-          <div className="fade-up-delay3 tokens">
-            <div className="token">
-              <div className="token-circle usdc">$</div>
-              <span>USDC</span>
-            </div>
-            <div className="token">
-              <div className="token-circle usdt">₮</div>
-              <span>USDT</span>
-            </div>
           </div>
         </div>
 

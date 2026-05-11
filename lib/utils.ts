@@ -1,7 +1,7 @@
 export const currencyRates: Record<string, number> = {
   AED: 3.67,
-  BRL: 5.12,
-  INR: 83.4,
+  BRL: 4.91,
+  INR: 95,
   USD: 1,
 };
 
