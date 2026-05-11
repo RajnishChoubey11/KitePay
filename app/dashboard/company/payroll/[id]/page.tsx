@@ -1,10 +1,10 @@
 "use client";
 
-import { use } from "react";
+import { useEffect, useState, use } from "react";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import PayrollButton from "@/components/payroll/PayrollButton";
 import EmployeeTable from "@/components/payroll/EmployeeTable";
-import { formatUsd, getPayrollTotal } from "@/lib/demoData";
+import { formatUsd } from "@/lib/utils";
 
 export default function PayrollPage({
   params: paramsPromise,
@@ -12,7 +12,29 @@ export default function PayrollPage({
   params: Promise<{ id: string }>;
 }) {
   const params = use(paramsPromise);
-  const total = getPayrollTotal();
+  const [total, setTotal] = useState(0);
+  const [employeeCount, setEmployeeCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchPayrollInfo() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch("/api/payroll", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setTotal(data.totalUsd || 0);
+      setEmployeeCount(data.employees?.length || 0);
+    }
+
+    fetchPayrollInfo();
+  }, []);
 
   return (
     <main className="dashboard-shell">
@@ -21,14 +43,16 @@ export default function PayrollPage({
         <div className="dash-header">
           <div>
             <p className="mono badge">Payroll run</p>
-            <h1>May 2026 payroll</h1>
-            <p className="muted">Demo batch total: {formatUsd(total)} in USDC on Solana.</p>
+            <h1>Current payroll</h1>
+            <p className="muted">
+              Batch total: {formatUsd(total)} for {employeeCount} employees.
+            </p>
           </div>
           <PayrollButton total={total} />
         </div>
         <div className="demo-card">
           <h2>Payout queue</h2>
-          <EmployeeTable />
+          <EmployeeTable companyId={params.id} />
         </div>
       </section>
     </main>

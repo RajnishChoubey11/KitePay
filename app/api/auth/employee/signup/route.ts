@@ -15,8 +15,18 @@ export async function POST(req: Request) {
       password,
       position,
       walletAddress,
+      country,
+      bankName,
+      accountNumber,
+      ifscCode,
     } = body;
 
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { message: "name, email, and password are required" },
+        { status: 400 }
+      );
+    }
 
     const existingEmployee = await Employee.findOne({ email });
     if (existingEmployee) {
@@ -34,6 +44,10 @@ export async function POST(req: Request) {
       password: hashedPassword,
       position: position || "",
       walletAddress: walletAddress || null,
+      country: country || "",
+      bankName: bankName || null,
+      accountNumber: accountNumber || null,
+      ifscCode: ifscCode || null,
     });
 
     const token = jwt.sign(

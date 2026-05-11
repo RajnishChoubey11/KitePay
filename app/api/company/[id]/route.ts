@@ -2,8 +2,29 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { connectDB } from "@/lib/db";
 import Company from "@/models/Company";
-import Employee from "@/models/Employee";
-import { demoEmployees } from "@/lib/demoData";
+
+type JwtPayload = {
+  id: string;
+  type: string;
+};
+
+type CompanyEmployeeEntry = {
+  employeeId: { toString: () => string };
+  employeeName: string;
+  email: string;
+  position?: string;
+  country: string;
+  salaryUsd: number;
+};
+
+type CompanyTransactionEntry = {
+  _id?: { toString: () => string };
+  employeeId: { toString: () => string };
+  employeeName: string;
+  amount: number;
+  status: string;
+  time: string;
+};
 
 export async function GET(
   req: Request,
@@ -11,7 +32,6 @@ export async function GET(
 ) {
   try {
     const params = await paramsPromise;
-
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.replace("Bearer ", "");
 
@@ -22,71 +42,69 @@ export async function GET(
       );
     }
 
-    // Verify token
-    jwt.verify(token, process.env.JWT_SECRET as string);
+    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    if (payload.type !== "COMPANY" || payload.id !== params.id) {
+      return NextResponse.json(
+        { message: "Unauthorized access" },
+        { status: 403 }
+      );
+    }
 
     await connectDB();
 
-    let company;
-    let employees;
-
-    // Handle demo company
-    if (params.id === "demo-company-id") {
-      company = {
-        _id: "demo-company-id",
-        companyName: "KitePay Demo Company",
-        ownerName: "Demo Owner",
-        email: "company@kitepay.demo",
-        createdAt: new Date().toISOString(),
-      };
-      employees = demoEmployees.map((emp) => ({
-        id: emp.id,
-        name: emp.name,
-        email: emp.email,
-        position: "Employee",
-        walletAddress: emp.wallet ? emp.wallet : null,
-        createdAt: new Date().toISOString(),
-      }));
-    } else {
-      company = await Company.findById(params.id);
-
-      if (!company) {
-        return NextResponse.json(
-          { message: "Company not found" },
-          { status: 404 }
-        );
-      }
-
-      // Return demo employees for the demo
-      employees = demoEmployees.map((emp) => ({
-        id: emp.id,
-        name: emp.name,
-        email: emp.email,
-        position: "Employee", // Default position
-        walletAddress: emp.wallet ? emp.wallet : null,
-        createdAt: new Date().toISOString(),
-      }));
+    const company = await Company.findById(params.id);
+    if (!company) {
+      return NextResponse.json(
+        { message: "Company not found" },
+        { status: 404 }
+      );
     }
+
+    const employees = (company.employees as CompanyEmployeeEntry[]).map((emp) => ({
+      employeeId: emp.employeeId.toString(),
+      employeeName: emp.employeeName,
+      email: emp.email,
+      position: emp.position || "",
+      country: emp.country,
+      salaryUsd: emp.salaryUsd,
+    }));
+
+    const transactions = (company.transactions as CompanyTransactionEntry[]).map((tx) => ({
+      id: tx._id?.toString() ?? "",
+      employeeId: tx.employeeId.toString(),
+      employeeName: tx.employeeName,
+      amount: tx.amount,
+      status: tx.status,
+      time: tx.time,
+      token: "USDC",
+    }));
 
     return NextResponse.json({
       company: {
-        id: company._id,
+        id: company._id.toString(),
         companyName: company.companyName,
         ownerName: company.ownerName,
         email: company.email,
         createdAt: company.createdAt,
       },
       employees,
+      transactions,
     });
-  } catch (error: any) {
-    if (error.name === "JsonWebTokenError") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "JsonWebTokenError") {
       return NextResponse.json(
         { message: "Invalid token" },
         { status: 401 }
       );
     }
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: error.message },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
-      { message: error.message || "Server error" },
+      { message: "Server error" },
       { status: 500 }
     );
   }

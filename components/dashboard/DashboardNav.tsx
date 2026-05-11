@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
@@ -55,8 +54,8 @@ export default function DashboardNav({
       ];
 
   const pathname = usePathname();
-
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);

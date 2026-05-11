@@ -12,10 +12,14 @@ export default function PayrollButton({ total }: PayrollButtonProps) {
 
   async function runPayroll() {
     setStatus("running");
+    const token = localStorage.getItem("token");
     await fetch("/api/payroll", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: "USDC", total }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ total }),
     });
     setStatus("sent");
   }
@@ -23,9 +27,9 @@ export default function PayrollButton({ total }: PayrollButtonProps) {
   return (
     <button className="cta-btn dash-action" disabled={status === "running"} onClick={runPayroll}>
       <Send className="icon" />
-      {status === "idle" && "Run demo payroll"}
+      {status === "idle" && "Run payroll"}
       {status === "running" && "Sending payroll..."}
-      {status === "sent" && "Payroll simulated"}
+      {status === "sent" && "Payroll completed"}
     </button>
   );
 }

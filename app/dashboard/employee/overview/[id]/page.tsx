@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import WithdrawModal from "@/components/withdraw/WithdrawModal";
-import { currencyRates, formatUsd } from "@/lib/demoData";
+import { currencyRates, formatUsd } from "@/lib/utils";
 
 type Employee = {
   name?: string;

@@ -20,6 +20,10 @@ export default function EmployeeSignupForm() {
     const password = String(form.get("password"));
     const position = String(form.get("position") || "");
     const walletAddress = String(form.get("walletAddress") || "");
+    const country = String(form.get("country") || "");
+    const bankName = String(form.get("bankName") || "");
+    const accountNumber = String(form.get("accountNumber") || "");
+    const ifscCode = String(form.get("ifscCode") || "");
 
     const response = await fetch("/api/auth/employee/signup", {
       method: "POST",
@@ -30,6 +34,10 @@ export default function EmployeeSignupForm() {
         password,
         position,
         walletAddress: walletAddress || undefined,
+        country: country || undefined,
+        bankName: bankName || undefined,
+        accountNumber: accountNumber || undefined,
+        ifscCode: ifscCode || undefined,
       }),
     });
 
@@ -60,6 +68,10 @@ export default function EmployeeSignupForm() {
       <input name="password" type="password" placeholder="Password" required />
       <input name="position" placeholder="Position" required />
       <input name="walletAddress" placeholder="Wallet address" required />
+      <input name="country" placeholder="Country" />
+      <input name="bankName" placeholder="Bank name" />
+      <input name="accountNumber" placeholder="Account number" />
+      <input name="ifscCode" placeholder="IFSC code" />
 
       {error && <p className="form-error">{error}</p>}
 

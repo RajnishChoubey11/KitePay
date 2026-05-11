@@ -1,5 +1,4 @@
 import mongoose, { Schema, models, model } from "mongoose";
-import Employee from "./Employee";
 
 const CompanySchema = new Schema(
   {
@@ -11,6 +10,7 @@ const CompanySchema = new Schema(
       employeeId: { type: mongoose.Schema.Types.ObjectId, required: true },
       employeeName: { type: String, required: true },
       email: { type: String, required: true },
+      position: { type: String, default: "" },
       country: { type: String, required: true },
       salaryUsd: { type: Number, required: true },
     }],

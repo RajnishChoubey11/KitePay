@@ -1,20 +1,34 @@
-import { demoTransactions, formatUsd } from "@/lib/demoData";
+import { formatUsd } from "@/lib/utils";
 
-export default function TransactionList() {
+type Transaction = {
+  id: string;
+  employeeName: string;
+  amount: number;
+  status: string;
+  time: string;
+  token?: string;
+  payout?: string;
+};
+
+export default function TransactionList({ transactions = [] }: { transactions?: Transaction[] }) {
+  if (transactions.length === 0) {
+    return <div className="muted p-4 text-center small">No recent transactions found.</div>;
+  }
+
   return (
     <div className="stack">
-      {demoTransactions.map((transaction) => (
+      {transactions.map((transaction) => (
         <div className="transaction-row" key={transaction.id}>
           <div>
-            <strong>{transaction.employee}</strong>
+            <strong>{transaction.employeeName}</strong>
             <span>
-              {transaction.createdAt} - {transaction.hash}
+              {transaction.time}
             </span>
           </div>
           <div>
-            <strong>{formatUsd(transaction.amountUsd)}</strong>
+            <strong>{formatUsd(transaction.amount)}</strong>
             <span>
-              {transaction.token} to {transaction.payout}
+              {transaction.token || "USDC"}
             </span>
           </div>
           <span className={transaction.status === "Completed" ? "pill success" : "pill warn"}>

@@ -3,24 +3,32 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import DashboardNav from "@/components/dashboard/DashboardNav";
-import { currencyRates, formatUsd, demoTransactions, PayrollTransaction } from "@/lib/demoData";
+import { formatUsd } from "@/lib/utils";
 
-type Employee = {
+type EmployeeTransaction = {
+  id: string;
+  companyName?: string;
+  amount: number;
+  status: string;
+  time: string;
+};
+
+type EmployeeApiTransaction = {
+  _id?: { toString: () => string };
   id?: string;
-  name?: string;
+  companyName?: string;
+  amount: number;
+  status: string;
+  time: string;
 };
 
 export default function EmployeePaymentsPage() {
   const params = useParams<{ id: string }>();
   const employeeId = params.id;
 
-  const [employee, setEmployee] = useState<Employee | null>(null);
   const [salary, setSalary] = useState(0);
-  const [available, setAvailable] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  // Filter transactions for this demo - in a real app, this would be an API call
-  const [transactions, setTransactions] = useState<PayrollTransaction[]>([]);
+  const [transactions, setTransactions] = useState<EmployeeTransaction[]>([]);
 
   useEffect(() => {
     if (!employeeId) return;
@@ -41,13 +49,16 @@ export default function EmployeePaymentsPage() {
         }
 
         const data = await response.json();
-        setEmployee(data.employee);
         setSalary(data.salary ?? 0);
-        setAvailable(data.available ?? 0);
-
-        // Use demo transactions for the list
-        // In a real app, we'd fetch transactions specifically for this employee
-        setTransactions(demoTransactions);
+        setTransactions(
+          (data.employee.transactions || []).map((tx: EmployeeApiTransaction) => ({
+            id: tx._id?.toString() ?? tx.id ?? `${tx.companyName}-${tx.time}`,
+            companyName: tx.companyName,
+            amount: tx.amount,
+            status: tx.status,
+            time: tx.time,
+          }))
+        );
       } catch (error) {
         console.error(error);
       } finally {
@@ -69,10 +80,10 @@ export default function EmployeePaymentsPage() {
   }
 
   const totalReceived = transactions
-    .filter(t => t.status === "Completed")
-    .reduce((sum, t) => sum + t.amountUsd, 0);
+    .filter((t) => t.status === "Completed")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-  const lastPayment = transactions[0]?.amountUsd || 0;
+  const lastPayment = transactions[0]?.amount || 0;
 
   return (
     <main className="dashboard-shell">
@@ -124,14 +135,12 @@ export default function EmployeePaymentsPage() {
                   {transactions.map((tx) => (
                     <tr key={tx.id}>
                       <td>
-                        <div className="semibold">{tx.createdAt}</div>
+                        <div className="semibold">{tx.time}</div>
                         <span className="tiny muted">Payroll Disbursement</span>
                       </td>
+                      <td>{tx.companyName}</td>
                       <td>
-                        <code className="mono tiny">{tx.hash}</code>
-                      </td>
-                      <td>
-                        <strong className="white">{formatUsd(tx.amountUsd)}</strong>
+                        <strong className="white">{formatUsd(tx.amount)}</strong>
                       </td>
                       <td>
                         <span className={`pill ${tx.status === "Completed" ? "success" : "warn"}`}>

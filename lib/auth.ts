@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import Company from "@/models/Company";
 import Employee from "@/models/Employee";
@@ -54,7 +55,7 @@ export const authOptions: NextAuthOptions = {
         // Try to find user in Company collection
         let user = await Company.findOne({ email: credentials.email });
 
-        if (user && user.password === credentials.password) {
+        if (user && (await bcrypt.compare(credentials.password, user.password))) {
           return {
             id: user._id.toString(),
             name: user.companyName,
@@ -66,7 +67,7 @@ export const authOptions: NextAuthOptions = {
         // Try to find user in Employee collection
         user = await Employee.findOne({ email: credentials.email });
 
-        if (user && user.password === credentials.password) {
+        if (user && (await bcrypt.compare(credentials.password, user.password))) {
           return {
             id: user._id.toString(),
             name: user.name,

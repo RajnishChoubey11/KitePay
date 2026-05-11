@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     if (!companyName || !ownerName || !email || !password) {
       return NextResponse.json(
-        { message: "All required fields are missing" },
+        { message: "companyName, ownerName, email, and password are required" },
         { status: 400 }
       );
     }

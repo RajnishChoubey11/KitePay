@@ -5,7 +5,7 @@ import DashboardNav from "@/components/dashboard/DashboardNav";
 import EmployeeTable from "@/components/payroll/EmployeeTable";
 import PayrollButton from "@/components/payroll/PayrollButton";
 import TransactionList from "@/components/payroll/TransactionList";
-import { formatUsd, getPayrollTotal } from "@/lib/demoData";
+import { formatUsd } from "@/lib/utils";
 
 interface Company {
   id: string;
@@ -16,12 +16,19 @@ interface Company {
 }
 
 interface Employee {
-  id: string;
-  name: string;
+  employeeId?: string;
+  employeeName?: string;
   email: string;
-  position: string;
-  walletAddress: string;
-  createdAt: string;
+  country: string;
+  salaryUsd: number;
+}
+
+interface Transaction {
+  id: string;
+  employeeName: string;
+  amount: number;
+  status: string;
+  time: string;
 }
 
 export default function CompanyDashboardPage({
@@ -32,6 +39,7 @@ export default function CompanyDashboardPage({
   const params = use(paramsPromise);
   const [company, setCompany] = useState<Company | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -54,14 +62,20 @@ export default function CompanyDashboardPage({
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch company data");
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.message || "Failed to fetch company data");
         }
 
         const data = await response.json();
         setCompany(data.company);
         setEmployees(data.employees || []);
-      } catch (err: any) {
-        setError(err.message || "Error loading dashboard");
+        setTransactions(data.transactions || []);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Error loading dashboard");
+        }
       } finally {
         setLoading(false);
       }
@@ -73,7 +87,7 @@ export default function CompanyDashboardPage({
   if (loading) {
     return (
       <main className="dashboard-shell">
-        <DashboardNav mode="company" />
+        <DashboardNav mode="company" companyId={params.id} />
         <section className="dash-main">
           <div className="dash-header">
             <p className="mono badge">Company dashboard</p>
@@ -87,7 +101,7 @@ export default function CompanyDashboardPage({
   if (error) {
     return (
       <main className="dashboard-shell">
-        <DashboardNav mode="company" />
+        <DashboardNav mode="company" companyId={params.id} />
         <section className="dash-main">
           <div className="dash-header">
             <p className="mono badge">Company dashboard</p>
@@ -99,10 +113,7 @@ export default function CompanyDashboardPage({
     );
   }
 
-  const total = getPayrollTotal();
-  const ready = employees.filter(
-    (employee) => employee.walletAddress
-  ).length;
+  const total = employees.reduce((sum, emp) => sum + (emp.salaryUsd || 0), 0);
 
   return (
     <main className="dashboard-shell">
@@ -113,8 +124,7 @@ export default function CompanyDashboardPage({
             <p className="mono badge">Company dashboard</p>
             <h1>Pay global employees in one run</h1>
             <p className="muted">
-              Welcome, {company?.companyName || "Company"}! Fund payroll in
-              USDC. Employees can receive crypto or local currency.
+              Welcome, {company?.companyName || "Company"}! Fund payroll in USDC and track payouts directly from the database.
             </p>
           </div>
           <PayrollButton total={total} />
@@ -127,24 +137,22 @@ export default function CompanyDashboardPage({
           </div>
           <div className="metric-card">
             <span>Active employees</span>
-            <strong>
-              {ready}/{employees.length}
-            </strong>
+            <strong>{employees.length}</strong>
           </div>
           <div className="metric-card">
             <span>Countries</span>
-            <strong>4</strong>
+            <strong>{new Set(employees.map((e) => e.country)).size}</strong>
           </div>
         </div>
 
         <div className="dash-grid">
           <div className="demo-card wide">
             <h2>Employees</h2>
-            <EmployeeTable />
+            <EmployeeTable companyId={params.id} onEmployeesChange={setEmployees} />
           </div>
           <div className="demo-card">
             <h2>Recent payouts</h2>
-            <TransactionList />
+            <TransactionList transactions={transactions} />
           </div>
         </div>
       </section>

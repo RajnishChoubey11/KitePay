@@ -22,7 +22,7 @@ export default function EmployeesPage({
           </div>
         </div>
         <div className="demo-card">
-          <EmployeeTable />
+          <EmployeeTable companyId={params.id} />
         </div>
       </section>
     </main>
