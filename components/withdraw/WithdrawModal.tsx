@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 
 type WithdrawModalProps = {
   availableAmount: number;
+  onSuccess?: () => void;
 };
 
-export default function WithdrawModal({ availableAmount }: WithdrawModalProps) {
+export default function WithdrawModal({ availableAmount, onSuccess }: WithdrawModalProps) {
   const [status, setStatus] = useState("");
   const [rate, setRate] = useState<number | null>(null);
   const [loadingRate, setLoadingRate] = useState(true);
@@ -58,6 +59,7 @@ export default function WithdrawModal({ availableAmount }: WithdrawModalProps) {
       setSignature(data.signature);
       setShowSuccess(true);
       setStatus("");
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Withdraw error:", error);
       alert(error instanceof Error ? error.message : "Something went wrong. Please try again.");
