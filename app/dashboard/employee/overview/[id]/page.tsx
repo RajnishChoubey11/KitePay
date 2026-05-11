@@ -71,7 +71,7 @@ export default function EmployeeDashboardPage() {
 
         <div className="metric-grid">
           <div className="metric-card">
-            <span>Monthly salary</span>
+            <span>Total Earnings</span>
             <strong>{formatUsd(salary)}</strong>
           </div>
 
