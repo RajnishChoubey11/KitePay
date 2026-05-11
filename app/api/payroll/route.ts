@@ -22,7 +22,10 @@ type CompanyTransactionEntry = {
   employeeId: { toString: () => string };
   employeeName: string;
   amount: number;
+  grossAmount?: number;
+  fee?: number;
   status: string;
+
   token?: string;
   time: string;
 };
@@ -72,12 +75,17 @@ export async function GET(req: Request) {
       employeeId: tx.employeeId.toString(),
       employeeName: tx.employeeName,
       amount: tx.amount,
+      grossAmount: tx.grossAmount || tx.amount,
+      fee: tx.fee || 0,
       status: tx.status,
       time: tx.time,
+
       token: tx.token || "USDC",
     }));
 
-    return NextResponse.json({ employees, totalUsd, transactions });
+    const totalFees = transactions.reduce((sum, tx) => sum + (tx.fee || 0), 0);
+    return NextResponse.json({ employees, totalUsd, totalFees, transactions });
+
   } catch (error: unknown) {
     if (error instanceof Error && error.name === "JsonWebTokenError") {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
@@ -136,36 +144,50 @@ export async function POST(req: Request) {
     const fee = parseFloat((totalUsd * 0.005).toFixed(6));
     const netMultiplier = 1 - 0.005;
 
-    const payrollTransactions: Array<{
+    const payrollTransactions: {
       id: string;
       employeeName: string;
       amount: number;
+      grossAmount: number;
+      fee: number;
       status: string;
       time: string;
       token: string;
-    }> = [];
+    }[] = [];
+
+
+
 
     for (const employeeEntry of company.employees as CompanyEmployeeEntry[]) {
-      const netAmount = parseFloat((employeeEntry.salaryUsd * netMultiplier).toFixed(6));
+      const grossAmount = employeeEntry.salaryUsd;
+      const employeeFee = parseFloat((grossAmount * 0.005).toFixed(6));
+      const netAmount = parseFloat((grossAmount - employeeFee).toFixed(6));
+
       const transaction = {
         employeeId: employeeEntry.employeeId,
         employeeName: employeeEntry.employeeName,
         email: employeeEntry.email,
         amount: netAmount,
+        grossAmount: grossAmount,
+        fee: employeeFee,
         status: "Completed",
         token: "USDC",
         time: timestamp,
       };
+
 
       company.transactions.push(transaction);
       payrollTransactions.push({
         id: transaction.employeeId.toString(),
         employeeName: transaction.employeeName,
         amount: transaction.amount,
+        grossAmount: transaction.grossAmount,
+        fee: transaction.fee,
         status: transaction.status,
         time: transaction.time,
         token: transaction.token,
       });
+
 
       const employee = await Employee.findById(employeeEntry.employeeId);
       if (employee) {
@@ -173,10 +195,13 @@ export async function POST(req: Request) {
           companyId: company._id,
           companyName: company.companyName,
           amount: netAmount,
+          grossAmount: grossAmount,
+          fee: employeeFee,
           status: "Completed",
           token: "USDC",
           time: timestamp,
         });
+
         await employee.save();
       }
     }

@@ -20,7 +20,10 @@ const CompanySchema = new Schema(
       employeeName: { type: String, required: true },
       email: { type: String, required: true },
       amount: { type: Number, required: true },
+      grossAmount: { type: Number },
+      fee: { type: Number },
       status: { type: String, required: true },
+
       token: { type: String, default: "USDC" },
       time: { type: String, required: true },
     }]

@@ -9,18 +9,24 @@ type EmployeeTransaction = {
   id: string;
   companyName?: string;
   amount: number;
+  grossAmount?: number;
+  fee?: number;
   status: string;
   time: string;
 };
+
 
 type EmployeeApiTransaction = {
   _id?: { toString: () => string };
   id?: string;
   companyName?: string;
   amount: number;
+  grossAmount?: number;
+  fee?: number;
   status: string;
   time: string;
 };
+
 
 export default function EmployeePaymentsPage() {
   const params = useParams<{ id: string }>();
@@ -55,9 +61,12 @@ export default function EmployeePaymentsPage() {
             id: tx._id?.toString() ?? tx.id ?? `${tx.companyName}-${tx.time}`,
             companyName: tx.companyName,
             amount: tx.amount,
+            grossAmount: tx.grossAmount || tx.amount,
+            fee: tx.fee || 0,
             status: tx.status,
             time: tx.time,
           }))
+
         );
       } catch (error) {
         console.error(error);
@@ -127,8 +136,11 @@ export default function EmployeePaymentsPage() {
                   <tr>
                     <th>Date & Time</th>
                     <th>Company Name</th>
-                    <th>Amount</th>
+                    <th>Gross</th>
+                    <th>Fee (0.5%)</th>
+                    <th>Net Received</th>
                     <th>Status</th>
+
                   </tr>
                 </thead>
                 <tbody>
@@ -139,14 +151,17 @@ export default function EmployeePaymentsPage() {
                         <span className="tiny muted">Payroll Disbursement</span>
                       </td>
                       <td>{tx.companyName}</td>
+                      <td>{formatUsd(tx.grossAmount || tx.amount)}</td>
+                      <td style={{ color: "#fca5a5" }}>-{formatUsd(tx.fee || 0)}</td>
                       <td>
-                        <strong className="white">{formatUsd(tx.amount)}</strong>
+                        <strong className="teal">{formatUsd(tx.amount)}</strong>
                       </td>
                       <td>
                         <span className={`pill ${tx.status === "Completed" ? "success" : "warn"}`}>
                           {tx.status}
                         </span>
                       </td>
+
                     </tr>
                   ))}
                 </tbody>

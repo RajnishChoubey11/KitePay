@@ -85,10 +85,13 @@ export async function GET(
       employeeId: tx.employeeId.toString(),
       employeeName: tx.employeeName,
       amount: tx.amount,
+      grossAmount: (tx as any).grossAmount || tx.amount,
+      fee: (tx as any).fee || 0,
       status: tx.status,
       time: tx.time,
       token: (tx as any).token || "USDC",
     }));
+
 
     return NextResponse.json({
       company: {

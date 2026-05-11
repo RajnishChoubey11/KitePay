@@ -15,7 +15,10 @@ const EmployeeSchema = new Schema(
       companyId: { type: mongoose.Schema.Types.ObjectId, required: true },
       companyName: { type: String, required: true },
       amount: { type: Number, required: true },
+      grossAmount: { type: Number },
+      fee: { type: Number },
       status: { type: String, required: true },
+
       token: { type: String, default: "USDC" },
       time: { type: String, required: true },
     }]

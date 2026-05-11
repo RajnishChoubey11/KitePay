@@ -19,6 +19,7 @@ export default function DashboardNav({
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
 
+
   const handleLogout = async () => {
     setLoggingOut(true);
 
@@ -53,6 +54,8 @@ export default function DashboardNav({
         ["Settings", `/dashboard/employee/settings/${employeeId ?? ""}`],
       ];
 
+
+
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
@@ -85,6 +88,8 @@ export default function DashboardNav({
               >
                 {label}
               </button>
+
+
             );
           })}
 
@@ -105,5 +110,7 @@ export default function DashboardNav({
         {loggingOut ? "Logging out..." : "Logout"}
       </button>
     </aside>
+
+
   );
 }

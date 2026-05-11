@@ -13,7 +13,9 @@ export default function PayrollPage({
 }) {
   const params = use(paramsPromise);
   const [total, setTotal] = useState(0);
+  const [totalFees, setTotalFees] = useState(0);
   const [employeeCount, setEmployeeCount] = useState(0);
+
 
   useEffect(() => {
     async function fetchPayrollInfo() {
@@ -30,7 +32,9 @@ export default function PayrollPage({
 
       const data = await response.json();
       setTotal(data.totalUsd || 0);
+      setTotalFees(data.totalFees || 0);
       setEmployeeCount(data.employees?.length || 0);
+
     }
 
     fetchPayrollInfo();
@@ -45,8 +49,12 @@ export default function PayrollPage({
             <p className="mono badge">Payroll run</p>
             <h1>Current payroll</h1>
             <p className="muted">
-              Batch total: {formatUsd(total)} for {employeeCount} employees.
+              Batch total: {formatUsd(total)} | Fees: {formatUsd(totalFees)}
             </p>
+            <p className="muted small">
+              Processing {employeeCount} employees.
+            </p>
+
           </div>
           <PayrollButton total={total} companyId={params.id} />
         </div>
