@@ -30,9 +30,10 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
     // Suppress noise for expected user/browser behaviors
     if (
       error.message === "Unexpected error" ||
-      error.message === "User rejected the request."
+      error.message === "User rejected the request." ||
+      error.name === "WalletDisconnectedError"
     ) {
-      console.warn("Solana Wallet Info:", error.message);
+      console.warn("Solana Wallet Info:", error.message || error.name);
       return;
     }
     console.error("Solana Wallet Error:", error.name, error.message);
@@ -40,7 +41,7 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} onError={onError} autoConnect={false}>
+      <WalletProvider wallets={wallets} onError={onError} autoConnect={true}>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

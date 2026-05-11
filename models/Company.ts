@@ -11,6 +11,7 @@ const CompanySchema = new Schema(
       employeeName: { type: String, required: true },
       email: { type: String, required: true },
       position: { type: String, default: "" },
+      walletAddress: { type: String, default: null },
       country: { type: String, required: true },
       salaryUsd: { type: Number, required: true },
     }],

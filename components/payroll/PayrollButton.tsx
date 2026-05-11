@@ -8,9 +8,10 @@ import { createSolanaConnection, transferUsdcPayrollBatch } from "@/lib/solana";
 type PayrollButtonProps = {
   total: number;
   companyId: string;
+  onSuccess?: () => void;
 };
 
-export default function PayrollButton({ total, companyId }: PayrollButtonProps) {
+export default function PayrollButton({ total, companyId, onSuccess }: PayrollButtonProps) {
   const [status, setStatus] = useState<"idle" | "running" | "sent">("idle");
   const { publicKey, connected, sendTransaction } = useWallet();
   const connection = useMemo(() => createSolanaConnection(), []);
@@ -48,18 +49,40 @@ export default function PayrollButton({ total, companyId }: PayrollButtonProps) 
         throw new Error("No employees available for payroll.");
       }
 
-      const employeePayments = employees.map((employee: any) => {
-        if (!employee.walletAddress) {
-          throw new Error(`Employee ${employee.employeeName || employee.email} does not have a wallet address.`);
+      const skippedEmployees: string[] = [];
+      const employeePayments = employees
+        .filter((emp: any) => {
+          if (!emp.walletAddress) {
+            skippedEmployees.push(emp.employeeName || emp.email);
+            return false;
+          }
+          return true;
+        })
+        .map((employee: any) => {
+          const gross = Number(employee.salaryUsd || 0);
+          const net = parseFloat((gross * 0.995).toFixed(6));
+          return {
+            walletAddress: employee.walletAddress,
+            amountUsd: net,
+            employeeName: employee.employeeName,
+          };
+        });
+
+      if (employeePayments.length === 0) {
+        throw new Error("No employees have a wallet address set. Cannot proceed with payroll.");
+      }
+
+      if (skippedEmployees.length > 0) {
+        const proceed = confirm(
+          `The following employees will be skipped because they haven't set a wallet address: ${skippedEmployees.join(
+            ", "
+          )}. Proceed with remaining payroll?`
+        );
+        if (!proceed) {
+          setStatus("idle");
+          return;
         }
-        const gross = Number(employee.salaryUsd || 0);
-        const net = parseFloat((gross * 0.995).toFixed(6));
-        return {
-          walletAddress: employee.walletAddress,
-          amountUsd: net,
-          employeeName: employee.employeeName,
-        };
-      });
+      }
 
       const totalFeeUsd = employees.reduce(
         (sum: number, employee: any) => sum + Number(employee.salaryUsd || 0) * 0.005,
@@ -88,6 +111,7 @@ export default function PayrollButton({ total, companyId }: PayrollButtonProps) 
       });
 
       setStatus("sent");
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Payroll transfer failed:", error);
       alert(

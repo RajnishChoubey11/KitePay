@@ -5,6 +5,7 @@ import DashboardNav from "@/components/dashboard/DashboardNav";
 import EmployeeTable from "@/components/payroll/EmployeeTable";
 import PayrollButton from "@/components/payroll/PayrollButton";
 import TransactionList from "@/components/payroll/TransactionList";
+import WalletBalance from "@/components/payroll/WalletBalance";
 import { formatUsd } from "@/lib/utils";
 
 interface Company {
@@ -84,6 +85,25 @@ export default function CompanyDashboardPage({
     fetchData();
   }, [params.id]);
 
+  const refreshData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/company/${params.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTransactions(data.transactions || []);
+      }
+    } catch (err) {
+      console.error("Refresh failed", err);
+    }
+  };
+
   if (loading) {
     return (
       <main className="dashboard-shell">
@@ -127,10 +147,11 @@ export default function CompanyDashboardPage({
               Welcome, {company?.companyName || "Company"}! Fund payroll in USDC and track payouts directly from the database.
             </p>
           </div>
-          <PayrollButton total={total} companyId={params.id} />
+          <PayrollButton total={total} companyId={params.id} onSuccess={refreshData} />
         </div>
 
         <div className="metric-grid">
+          <WalletBalance />
           <div className="metric-card">
             <span>Payroll due</span>
             <strong>{formatUsd(total)}</strong>
@@ -138,10 +159,6 @@ export default function CompanyDashboardPage({
           <div className="metric-card">
             <span>Active employees</span>
             <strong>{employees.length}</strong>
-          </div>
-          <div className="metric-card">
-            <span>Countries</span>
-            <strong>{new Set(employees.map((e) => e.country)).size}</strong>
           </div>
         </div>
 
@@ -152,7 +169,7 @@ export default function CompanyDashboardPage({
           </div>
           <div className="demo-card">
             <h2>Recent payouts</h2>
-            <TransactionList transactions={transactions} />
+            <TransactionList transactions={[...transactions].reverse()} />
           </div>
         </div>
       </section>

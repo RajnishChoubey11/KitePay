@@ -47,6 +47,7 @@ export async function POST(
       employeeName: employee.name,
       email: employee.email,
       position: employee.position || "",
+      walletAddress: employee.walletAddress || null,
       country: employee.country || "Unknown",
       salaryUsd: salaryUsd || 0,
     });
