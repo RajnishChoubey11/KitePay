@@ -18,7 +18,7 @@ export default function EmployeePaymentsPage() {
   const [salary, setSalary] = useState(0);
   const [available, setAvailable] = useState(0);
   const [loading, setLoading] = useState(true);
-  
+
   // Filter transactions for this demo - in a real app, this would be an API call
   const [transactions, setTransactions] = useState<PayrollTransaction[]>([]);
 
@@ -44,7 +44,7 @@ export default function EmployeePaymentsPage() {
         setEmployee(data.employee);
         setSalary(data.salary ?? 0);
         setAvailable(data.available ?? 0);
-        
+
         // Use demo transactions for the list
         // In a real app, we'd fetch transactions specifically for this employee
         setTransactions(demoTransactions);
@@ -115,11 +115,9 @@ export default function EmployeePaymentsPage() {
                 <thead>
                   <tr>
                     <th>Date & Time</th>
-                    <th>Reference</th>
-                    <th>Method</th>
+                    <th>Company Name</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,19 +131,12 @@ export default function EmployeePaymentsPage() {
                         <code className="mono tiny">{tx.hash}</code>
                       </td>
                       <td>
-                        <div className="small">{tx.payout}</div>
-                        <span className="tiny muted">{tx.token}</span>
-                      </td>
-                      <td>
                         <strong className="white">{formatUsd(tx.amountUsd)}</strong>
                       </td>
                       <td>
                         <span className={`pill ${tx.status === "Completed" ? "success" : "warn"}`}>
                           {tx.status}
                         </span>
-                      </td>
-                      <td>
-                        <button className="link tiny">Details</button>
                       </td>
                     </tr>
                   ))}

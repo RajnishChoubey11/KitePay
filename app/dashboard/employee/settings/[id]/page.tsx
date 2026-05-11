@@ -7,6 +7,9 @@ type Employee = {
   name?: string;
   email?: string;
   walletAddress?: string | null;
+  bankName?: string | null;
+  accountNumber?: string | null;
+  ifscCode?: string | null;
 };
 
 export default function EmployeeSettingsPage({
@@ -74,8 +77,8 @@ export default function EmployeeSettingsPage({
         <div className="settings-grid">
           <div className="demo-card">
             <h2>Bank account</h2>
-            <p className="muted small">HDFC Bank ending 2042</p>
-            <span className="pill success">Verified</span>
+            <p className="muted small">{employee?.bankName || "Not connected"}</p>
+            <span className="pill success">{employee?.bankName ? "Connected" : "Not Connected"}</span>
           </div>
           <div className="demo-card">
             <h2>Wallet</h2>

@@ -1,34 +1,30 @@
 import mongoose, { Schema, models, model } from "mongoose";
+import Employee from "./Employee";
 
 const CompanySchema = new Schema(
   {
-    companyName: {
-      type: String,
-      required: true,
-    },
-
-    ownerName: {
-      type: String,
-      required: true,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-
-    password: {
-      type: String,
-      required: true,
-    },
+    companyName: { type: String, required: true },
+    ownerName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    employees: [{
+      employeeId: { type: mongoose.Schema.Types.ObjectId, required: true },
+      employeeName: { type: String, required: true },
+      email: { type: String, required: true },
+      country: { type: String, required: true },
+      salaryUsd: { type: Number, required: true },
+    }],
+    transactions: [{
+      employeeId: { type: mongoose.Schema.Types.ObjectId, required: true },
+      employeeName: { type: String, required: true },
+      email: { type: String, required: true },
+      amount: { type: Number, required: true },
+      status: { type: String, required: true },
+      time: { type: String, required: true },
+    }]
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const Company =
-  models.Company || model("Company", CompanySchema);
-
+const Company = models.Company || model("Company", CompanySchema);
 export default Company;
